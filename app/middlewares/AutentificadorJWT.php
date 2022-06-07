@@ -1,6 +1,6 @@
 <?php
 
-    require_once("E:/xampp/htdocs/programacion_3/tp/app/models/JsonWebToken.php");
+    require_once("E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/JsonWebToken.php");
     use Slim\Psr7\Response;
 
     class AutentificadorJWT
@@ -23,10 +23,15 @@
                     $response = $handler->handle($request);
                     $response->getBody()->write(json_encode($data));
                 }
+                else
+                {
+                    $response->getBody()->write(json_encode("No esta logueado"));
+                    $response = $response->withStatus(401);
+                }
             }
             catch(Exception $e)
             {
-                $response->getBody()->write(json_encode("Error"));
+                $response->getBody()->write(json_encode("Error token invalido"));
                 $response = $response->withStatus(401);
             }
 

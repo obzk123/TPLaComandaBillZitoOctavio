@@ -14,13 +14,12 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 require_once './controllers/UsuarioController.php';
 
-
-require_once "E:/xampp/htdocs/programacion_3/tp/app/models/JsonWebToken.php";
-require_once "E:/xampp/htdocs/programacion_3/tp/app/controllers/MesaController.php";
-require_once "E:/xampp/htdocs/programacion_3/tp/app/controllers/PedidoController.php";
-require_once "E:/xampp/htdocs/programacion_3/tp/app/controllers/ProductoController.php";
-require_once "E:/xampp/htdocs/programacion_3/tp/app/controllers/LoginController.php";
-require_once "E:/xampp/htdocs/programacion_3/tp/app/middlewares/AutentificadorJWT.php";
+require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/JsonWebToken.php";
+require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/controllers/MesaController.php";
+require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/controllers/PedidoController.php";
+require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/controllers/ProductoController.php";
+require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/controllers/LoginController.php";
+require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/middlewares/AutentificadorJWT.php";
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);

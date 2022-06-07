@@ -1,7 +1,7 @@
 <?php
 
-  require_once "E:/xampp/htdocs/programacion_3/tp/app/models/Usuario.php";
-  require_once "E:/xampp/htdocs/programacion_3/tp/app/interfaces/IApiUsable.php";
+  require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/Usuario.php";
+  require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/interfaces/IApiUsable.php";
 
 class UsuarioController extends Usuario implements IApiUsable
 {
