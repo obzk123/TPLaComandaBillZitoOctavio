@@ -33,7 +33,6 @@ $app->addErrorMiddleware(true, true, true);
 
 
 
-
 $app->get('[/]', function (Request $request, Response $response) {
   $response->getBody()->write("Trabajo practico Octavio Bill Zito 3°C");
   return $response;
@@ -46,28 +45,36 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
   $group->get('[/]', \UsuarioController::class . ':TraerTodos');
   $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
   $group->post('[/]', \UsuarioController::class . ':CargarUno');
+  $group->delete('/{usuario}', \UsuarioController::class . ':BorrarUno');
+  $group->put('[/]', \UsuarioController::class . ':ModificarUno');
 })->add(\AutentificadorJWT::class . ':verificarToken');
 
 $app->group('/mesas', function(RouteCollectorProxy $group)
 {
   $group->get('[/]', \MesaController::class. ':TraerTodos');
-  $group->get('/{mesa}', \MesaController::class. ':TraerUno');
+  $group->get('/{id}', \MesaController::class. ':TraerUno');
   $group->post('[/]', \MesaController::class. ':CargarUno');
-});
+  $group->delete('/{numero_de_mesa}', \MesaController::class . ':BorrarUno');
+  $group->put('[/]', MesaController::class . ':ModificarUno');
+})->add(\AutentificadorJWT::class . ':verificarToken');
 
 $app->group('/productos', function(RouteCollectorProxy $group)
 {
   $group->get('[/]', \ProductoController::class. ':TraerTodos');
-  $group->get('/{producto}', \ProductoController::class. ':TraerUno');
+  $group->get('/{id}', \ProductoController::class. ':TraerUno');
   $group->post('[/]', \ProductoController::class. ':CargarUno');
-});
+  $group->delete('/{id}', \Producto::class . ':BorrarUno');
+  $group->put('[/]', \Producto::class . ':ModificarUno');
+})->add(\AutentificadorJWT::class . ':verificarToken');
 
 $app->group('/pedidos', function(RouteCollectorProxy $group)
 {
   $group->get('[/]', \PedidoController::class. ':TraerTodos');
   $group->get('/{pedido}', \PedidoController::class. ':TraerUno');
   $group->post('[/]', \PedidoController::class. ':CargarUno');
-});
+  $group->delete('/{id}', \PedidoController::class . ':BorrarUno');
+  $group->put('[/]', \PedidoController::class . ':ModificarUno');
+})->add(\AutentificadorJWT::class . ':verificarToken');
 
 $app->run();
 

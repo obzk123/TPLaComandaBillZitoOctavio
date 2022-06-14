@@ -12,7 +12,10 @@
             $usuario = $body['usuario'];
             $clave = $body['clave'];
 
-            
+            if($usuario == null || $clave == null)
+            {
+                
+            }
             $accesoDatos = AccesoDatos::obtenerInstancia();
             $consulta = $accesoDatos->prepararConsulta("SELECT * FROM usuarios WHERE usuario = :usuario AND clave = :clave");
             $consulta->bindValue(':usuario', $usuario,PDO::PARAM_STR);
@@ -29,7 +32,7 @@
             }
 
             $response->getBody()->write("No se pudo logear");
-            
+            $response = $response->withStatus(401);
             return $response;
         }
     }

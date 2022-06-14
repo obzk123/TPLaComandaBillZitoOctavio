@@ -8,14 +8,18 @@
         public $nombre;
         public $tiempo;
         public $tipo;
+        public $precio;
+        public $stock;
 
         public function CrearProducto()
         {
             $acessoDatos = AccesoDatos::obtenerInstancia();
-            $consulta = $acessoDatos->prepararConsulta("INSERT INTO productos (nombre, tiempo, tipo) values (:nombre, :tiempo, :tipo)");
+            $consulta = $acessoDatos->prepararConsulta("INSERT INTO productos (nombre, tiempo, tipo, precio, stock) values (:nombre, :tiempo, :tipo, :precio, :stock)");
             $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
             $consulta->bindValue(':tiempo', $this->tiempo, PDO::PARAM_STR);
             $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
+            $consulta->bindValue(':precio', $this->precio, PDO::PARAM_INT);
+            $consulta->bindValue(':stock', $this->stock, PDO::PARAM_INT);
             $consulta->execute();
             return $acessoDatos->obtenerUltimoId();
         }
@@ -37,16 +41,18 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Producto");
         }
 
-        public function ModificarProducto()
+        public static function ModificarProducto($producto)
         {
             $accesoDatos = AccesoDatos::obtenerInstancia();
-            $consulta = $accesoDatos->prepararConsulta("UPDATE productos SET nombre = :nombre, tiempo = :tiempo, tipo = :tipo WHERE id = :id");
-            $consulta->bindValues(':id', $this->id, PDO::PARAM_INT);
-            $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
-            $consulta->bindValue(':tiempo', $this->tiempo, PDO::PARAM_STR);
-            $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
+            $consulta = $accesoDatos->prepararConsulta("UPDATE productos SET nombre = :nombre, tiempo = :tiempo, tipo = :tipo, precio = :precio, stock = :stock WHERE id = :id");
+            $consulta->bindValues(':id', $producto->id, PDO::PARAM_INT);
+            $consulta->bindValue(':nombre', $producto->nombre, PDO::PARAM_STR);
+            $consulta->bindValue(':tiempo', $producto->tiempo, PDO::PARAM_STR);
+            $consulta->bindValue(':tipo', $producto->tipo, PDO::PARAM_STR);
+            $consulta->bindValue(':precio', $producto->precio, PDO::PARAM_INT);
+            $consulta->bindValue(':stock', $producto->stock, PDO::PARAM_INT);
             $consulta->execute();
-            return $consulta->fetchObject('Producto');
+            return $consulta->rowCount();
         }
 
         public static function EliminarProducto($id)
@@ -55,7 +61,7 @@
             $consulta = $accesoDatos->prepararConsulta("DELETE FROM productos WHERE id = :id");
             $consulta->bindValues(':id', $id, PDO::PARAM_INT);
             $consulta->execute();
-            return $consulta;
+            return $consulta->rowCount();
         }
     
     }

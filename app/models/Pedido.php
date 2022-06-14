@@ -4,10 +4,10 @@
 
     class Pedido
     {
-        private $id;
-        private $producto;
-        private $mesa;
-        private $estado;
+        public $id;
+        public $producto;
+        public $mesa;
+        public $estado;
 
         public function CrearPedido()
         {
@@ -37,16 +37,16 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
-        public function ModificarPedido()
+        public static function ModificarPedido($pedido)
         {
             $accesoDatos = AccesoDatos::obtenerInstancia();
             $consulta = $accesoDatos->prepararConsulta("UPDATE pedidos SET producto = :producto, mesa = :mesa, estado = :estado WHERE id = :id");
-            $consulta->bindValues(':id', $this->id, PDO::PARAM_INT);
-            $consulta->bindValue(':producto', $this->producto, PDO::PARAM_STR);
-            $consulta->bindValue(':mesa', $this->mesa, PDO::PARAM_INT);
-            $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+            $consulta->bindValues(':id', $pedido->id, PDO::PARAM_INT);
+            $consulta->bindValue(':producto', $pedido->producto, PDO::PARAM_STR);
+            $consulta->bindValue(':mesa', $pedido->mesa, PDO::PARAM_INT);
+            $consulta->bindValue(':estado', $pedido->estado, PDO::PARAM_STR);
             $consulta->execute();
-            return $consulta->fetchObject('Pedido');
+            return $consulta->rowCount();
         }
 
         public static function EliminarPedido($id)
@@ -55,7 +55,7 @@
             $consulta = $accesoDatos->prepararConsulta("DELETE FROM pedidos WHERE id = :id");
             $consulta->bindValues(':id', $id, PDO::PARAM_INT);
             $consulta->execute();
-            return $consulta;
+            return $consulta->rowCount();
         }
     }
 

@@ -11,18 +11,25 @@ class UsuarioController extends Usuario implements IApiUsable
 
         $usuario = $parametros['usuario'];
         $clave = $parametros['clave'];
+        $rol = $parametros['rol'];
+
+        if($usuario == null || $clave == null || $rol == null)
+        {
+          $response->getBody()->write("Error al recibir los parametros");
+          return $response->withHeader('Content-Type', 'application/json');
+        }
 
         // Creamos el usuario
         $usr = new Usuario();
         $usr->usuario = $usuario;
         $usr->clave = $clave;
+        $usr->rol = $rol;
         $usr->crearUsuario();
 
         $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
 
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function TraerUno($request, $response, $args)
@@ -30,48 +37,70 @@ class UsuarioController extends Usuario implements IApiUsable
         // Buscamos usuario por nombre
         $usr = $args['usuario'];
         $usuario = Usuario::obtenerUsuario($usr);
-        $payload = json_encode($usuario);
+        if($usuario != null)
+        {
+          $payload = json_encode($usuario);
+          $response->getBody()->write($payload);
+        }
+        else
+        {
+          $response->getBody()->write("Usuario no encontrado");
+        }
 
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function TraerTodos($request, $response, $args)
     {
         $lista = Usuario::obtenerTodos();
         $payload = json_encode(array("listaUsuario" => $lista));
-
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
     
     public function ModificarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
+        $body = $request->getBody();
+        $parametros = json_decode($body, true);
+      
+        $username = $parametros['usuario'];
+        $clave = $parametros['clave'];
 
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
+        $usuario = Usuario::obtenerUsuario($username);
+        if($usuario == null || $clave == null)
+        {
+          $response->getBody()->write("Usuario no encontrado o parametros incorrectos");
+          return $response->withHeader('Content-Type', 'application/json');
+        }
 
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+        $usuario->clave = $clave;
+        if(Usuario::modificarUsuario($usuario))
+        {
+          $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+        }
+        else
+        {
+          $payload = json_encode(array("mensaje" => "El usuario no se pudo modificar"));
+        }
 
         $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function BorrarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
-
-        $usuarioId = $parametros['usuarioId'];
-        Usuario::borrarUsuario($usuarioId);
-
+      $usuarioNombre = $args['usuario'];
+      
+      if(Usuario::borrarUsuario($usuarioNombre))
+      {
         $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
+      }
+      else
+      {
+        $payload = json_encode(array("mensaje" => "Usuario no encontrado"));
+      }   
 
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+      $response->getBody()->write($payload);
+      return $response->withHeader('Content-Type', 'application/json');
     }
 }
