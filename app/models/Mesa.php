@@ -11,7 +11,7 @@
         public function CrearMesa()
         {
             $acessoDatos = AccesoDatos::obtenerInstancia();
-            $consulta = $acessoDatos->prepararConsulta("INSERT INTO mesas (numero_de_mesa estado) values (:numero_de_mesa, :estado)");
+            $consulta = $acessoDatos->prepararConsulta("INSERT INTO mesas (numero_de_mesa, estado) values (:numero_de_mesa, :estado)");
             $consulta->bindValue(':numero_de_mesa', $this->numero_de_mesa, PDO::PARAM_INT);
             $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
             $consulta->execute();

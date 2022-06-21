@@ -11,20 +11,39 @@ class UsuarioController extends Usuario implements IApiUsable
 
         $usuario = $parametros['usuario'];
         $clave = $parametros['clave'];
+        $estado = $parametros['estado'];
         $rol = $parametros['rol'];
+        
 
-        if($usuario == null || $clave == null || $rol == null)
+        if($usuario == null || $clave == null || $estado == null || $rol == null)
         {
           $response->getBody()->write("Error al recibir los parametros");
           return $response->withHeader('Content-Type', 'application/json');
         }
 
+        if(Usuario::obtenerUsuario($usuario) != null)
+        {
+          $response->getBody()->write("Nombre de usuario ya existente");
+          return $response->withHeader('Content-Type', 'application/json');
+        }
+        
         // Creamos el usuario
         $usr = new Usuario();
         $usr->usuario = $usuario;
         $usr->clave = $clave;
+        $usr->estado = $estado;
         $usr->rol = $rol;
         $usr->crearUsuario();
+        
+        $registro = new RegistroDeAcciones();
+
+        $peticionHeader = $request->getHeaderLine("Authorization");
+        $token = trim(explode("Bearer", $peticionHeader)[1]);
+        $tokenData = JsonWebToken::ObtenerData($token);
+
+        $registro->idUsuario = $tokenData[0];
+        $registro->accion = "Registro de usuario";
+        $registro->CrearRegistroDeAcciones();
 
         $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
 
@@ -41,12 +60,22 @@ class UsuarioController extends Usuario implements IApiUsable
         {
           $payload = json_encode($usuario);
           $response->getBody()->write($payload);
+
+          $registro = new RegistroDeAcciones();
+
+          $peticionHeader = $request->getHeaderLine("Authorization");
+          $token = trim(explode("Bearer", $peticionHeader)[1]);
+          $tokenData = JsonWebToken::ObtenerData($token);
+  
+          $registro->idUsuario = $tokenData[0];
+          $registro->accion = "Traer usuario";
+          $registro->CrearRegistroDeAcciones();
+          
         }
         else
         {
           $response->getBody()->write("Usuario no encontrado");
         }
-
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -55,6 +84,15 @@ class UsuarioController extends Usuario implements IApiUsable
         $lista = Usuario::obtenerTodos();
         $payload = json_encode(array("listaUsuario" => $lista));
         $response->getBody()->write($payload);
+        $registro = new RegistroDeAcciones();
+
+        $peticionHeader = $request->getHeaderLine("Authorization");
+        $token = trim(explode("Bearer", $peticionHeader)[1]);
+        $tokenData = JsonWebToken::ObtenerData($token);
+
+        $registro->idUsuario = $tokenData[0];
+        $registro->accion = "Traer todos los usuarios";
+        $registro->CrearRegistroDeAcciones();
         return $response->withHeader('Content-Type', 'application/json');
     }
     
@@ -77,6 +115,15 @@ class UsuarioController extends Usuario implements IApiUsable
         if(Usuario::modificarUsuario($usuario))
         {
           $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+          $registro = new RegistroDeAcciones();
+
+          $peticionHeader = $request->getHeaderLine("Authorization");
+          $token = trim(explode("Bearer", $peticionHeader)[1]);
+          $tokenData = JsonWebToken::ObtenerData($token);
+  
+          $registro->idUsuario = $tokenData[0];
+          $registro->accion = "Usuario modificado";
+          $registro->CrearRegistroDeAcciones();
         }
         else
         {
@@ -94,6 +141,15 @@ class UsuarioController extends Usuario implements IApiUsable
       if(Usuario::borrarUsuario($usuarioNombre))
       {
         $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
+        $registro = new RegistroDeAcciones();
+
+        $peticionHeader = $request->getHeaderLine("Authorization");
+        $token = trim(explode("Bearer", $peticionHeader)[1]);
+        $tokenData = JsonWebToken::ObtenerData($token);
+
+        $registro->idUsuario = $tokenData[0];
+        $registro->accion = "Usuario borrado";
+        $registro->CrearRegistroDeAcciones();
       }
       else
       {

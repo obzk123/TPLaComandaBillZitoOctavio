@@ -33,7 +33,6 @@ require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/inte
             $body = $request->getParsedBody();
             $numero_de_mesa = $body['numero_de_mesa'];
             $estado = $body['estado'];
-
             if($numero_de_mesa != null && $estado != null)
             {
                 $mesa = new Mesa();

@@ -31,21 +31,43 @@
         public function CargarUno($request, $response, $args)
         {
             $body = $request->getParsedBody();
-            $producto = $body['producto'];
-            $mesa = $body['mesa'];
-            $estado = $body['estado'];
+            $mesaID = $body['mesaID'];
+            $clienteID = $body['clienteID'];
+            
 
-            if($producto != null && $estado != null && $mesa != null)
+            if($mesaID != null && $clienteID != null)
             {
+                $mesa = Mesa::ObtenerMesa($mesaID);
+                if($mesa == null || $mesa->estado != 'cliente esperando')
+                {
+                    $response->getBody()->write("Mesa inexistente o ocupada");
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+                
+                $cliente = Cliente::obtenerCliente($clienteID);
+                if($cliente == null)
+                {
+                    $response->getBody()->write("Cliente inexistente");
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+
+                $peticionHeader = $request->getHeaderLine("Authorization");
+                $token = trim(explode("Bearer", $peticionHeader)[1]);
+                $tokenData = JsonWebToken::ObtenerData($token);
+
                 $pedido = new Pedido();
-                $pedido->producto = $producto;
-                $pedido->mesa = $mesa;
-                $pedido->estado = $estado;
+                $pedido->fechaEntrada = date("Y-m-d");
+                $pedido->mesaID = $mesaID;
+                $pedido->clienteID = $clienteID;
+                $pedido->usuarioID = $tokenData[0];
+                $pedido->estado = "en preparacion";
+
                 $pedido->CrearPedido();
 
                 $response->getBody()->write("Pedido creado");
                 $response->getBody()->write(json_encode($pedido));
             }
+
             return $response->withHeader('Content-Type', 'application/json');
         }
 

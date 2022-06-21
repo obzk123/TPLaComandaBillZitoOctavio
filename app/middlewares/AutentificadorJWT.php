@@ -17,7 +17,7 @@ use Slim\Psr7\Response;
                 if($peticionHeader != null)
                 {
                     $token = trim(explode("Bearer", $peticionHeader)[1]);
-                    JsonWebToken::VerificarToken($token); 
+                    JsonWebToken::VerificarToken($token);
                     $response = $handler->handle($request);
                 }
                 else
@@ -31,9 +31,36 @@ use Slim\Psr7\Response;
                 $response->getBody()->write(json_encode("Error token invalido"));
                 $response = $response->withStatus(401);
             }
-
             return $response->withHeader('Content-Type', 'application/json');
         }
+
+
+        public static function verificarRolSocio($request, $handler)
+        {
+            $peticionHeader = $request->getHeaderLine("Authorization");
+            $response = new Response();
+            try
+            {
+                $token = trim(explode("Bearer", $peticionHeader)[1]);
+                $data = JsonWebToken::ObtenerData($token);
+                if($data[1] == 'socio')
+                {
+                    $response = $handler->handle($request);
+                }
+                else
+                {
+                    $response->getBody()->write(json_encode("No autorizado"));
+                    $response = $response->withStatus(401);
+                }
+            }
+            catch(Exception $e)
+            {
+                $response->getBody()->write(json_encode("Error token invalido"));
+                $response = $response->withStatus(401);
+            }
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
 
         public static function verificarRolMozo($request, $handler)
         {
@@ -43,10 +70,9 @@ use Slim\Psr7\Response;
             {
                 $token = trim(explode("Bearer", $peticionHeader)[1]);
                 $data = JsonWebToken::ObtenerData($token);
-                if($data == 'socio' || $data == 'mozo')
+                if($data[1] == 'socio' || $data[1] == 'mozo')
                 {
                     $response = $handler->handle($request);
-                    $response->getBody()->write(json_encode($data));
                 }
                 else
                 {
@@ -71,10 +97,9 @@ use Slim\Psr7\Response;
             {
                 $token = trim(explode("Bearer", $peticionHeader)[1]);
                 $data = JsonWebToken::ObtenerData($token);
-                if($data == 'socio' || $data == 'bartender')
+                if($data[1] == 'socio' || $data[1] == 'bartender')
                 {
                     $response = $handler->handle($request);
-                    $response->getBody()->write(json_encode($data));
                 }
                 else
                 {
@@ -99,17 +124,15 @@ use Slim\Psr7\Response;
             {
                 $token = trim(explode("Bearer", $peticionHeader)[1]);
                 $data = JsonWebToken::ObtenerData($token);
-                if($data == 'socio' || $data == 'cervecero')
+                if($data[1] == 'socio' || $data[1] == 'cervecero')
                 {
                     $response = $handler->handle($request);
-                    $response->getBody()->write(json_encode($data));
                 }
                 else
                 {
                     $response->getBody()->write(json_encode("No autorizado"));
                     $response = $response->withStatus(401);
                 }
-
             }
             catch(Exception $e)
             {
@@ -127,17 +150,15 @@ use Slim\Psr7\Response;
             {
                 $token = trim(explode("Bearer", $peticionHeader)[1]);
                 $data = JsonWebToken::ObtenerData($token);
-                if($data == 'socio' || $data == 'cocinero')
+                if($data[1] == 'socio' || $data[1] == 'cocinero')
                 {
                     $response = $handler->handle($request);
-                    $response->getBody()->write(json_encode($data));
                 }
                 else
                 {
                     $response->getBody()->write(json_encode("No autorizado"));
                     $response = $response->withStatus(401);
                 }
-
             }
             catch(Exception $e)
             {
