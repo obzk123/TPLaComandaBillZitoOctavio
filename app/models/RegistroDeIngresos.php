@@ -10,7 +10,7 @@
             $accesoDatos = AccesoDatos::obtenerInstancia();
             $consulta = $accesoDatos->prepararConsulta('INSERT INTO registrodeingresos (idUsuario, horaIngreso) VALUES (:idUsuario, :horaIngreso)');
             $consulta->bindValue(':idUsuario', $this->idUsuario, PDO::PARAM_INT);
-            $consulta->bindValue(':horaIngreso', time());
+            $consulta->bindValue(':horaIngreso', date('H:i:s'));
             $consulta->execute();
             return $accesoDatos->obtenerUltimoId();
         }

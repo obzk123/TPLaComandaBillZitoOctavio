@@ -41,7 +41,6 @@ require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/inte
                 $mesa->CrearMesa();
 
                 $response->getBody()->write("Mesa creada");
-                $response->getBody()->write(json_encode($mesa));
             }
             return $response->withHeader('Content-Type', 'application/json');
         }

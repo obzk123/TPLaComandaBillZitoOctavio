@@ -7,21 +7,32 @@
         public function CargarUno($request, $response, $args)
         {
             $body = $request->getParsedBody();
+            $clienteID = $body['clienteID'];
+            $numero_de_pedido = $body['numero_de_pedido'];
             $puntajeMesa = $body['puntajeMesa'];
             $puntajeRestorant = $body['puntajeRestorant'];
             $puntajeCocinero = $body['puntajeCocinero'];
             $puntajeMozo = $body['puntajeMozo'];
 
-            if($puntajeMesa <= 5 && $puntajeMesa >= 1 && $puntajeRestorant <= 5 && $puntajeRestorant >= 1 && $puntajeCocinero <= 5 && $puntajeCocinero >= 1 && $puntajeMozo <= 5 && $puntajeMozo >= 1)
+            if(Encuesta::VerificarEncuestaExistente($numero_de_pedido) != null)
+            {
+                $response->getBody()->write("El numero de pedido ya tiene una encuesta");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $cliente = Cliente::obtenerCliente($clienteID);
+            $pedido = Pedido::ObtenerPedido($numero_de_pedido);
+            if($cliente != null && $pedido != null && $pedido->estado == 'finalizado' && $puntajeMesa <= 10 && $puntajeMesa >= 1 && $puntajeRestorant <= 10 && $puntajeRestorant >= 1 && $puntajeCocinero <= 10 && $puntajeCocinero >= 1 && $puntajeMozo <= 10 && $puntajeMozo >= 1)
             {
                 $encuesta = new Encuesta();
+                $encuesta->clienteID = $clienteID;
+                $encuesta->numero_de_pedido = $numero_de_pedido;
                 $encuesta->puntajeMesa = $puntajeMesa;
                 $encuesta->puntajeRestorant = $puntajeRestorant;
                 $encuesta->puntajeCocinero = $puntajeCocinero;
                 $encuesta->puntajeMozo = $puntajeMozo;
                 $encuesta->CrearEncuesta();
                 $response->getBody()->write("Encuesta creada");
-                $response->getBody()->write(json_encode($encuesta));
 
                 $registro = new RegistroDeAcciones();
 
@@ -32,6 +43,10 @@
                 $registro->idUsuario = $tokenData[0];
                 $registro->accion = "Encuesta creada";
                 $registro->CrearRegistroDeAcciones();
+            }
+            else
+            {
+                $response->getBody()->write("Error al crear la encuesta");
             }
             return $response->withHeader('Content-Type', 'application/json');
         }

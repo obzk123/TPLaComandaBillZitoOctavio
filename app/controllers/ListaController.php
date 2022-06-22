@@ -9,11 +9,11 @@
             $body = $request->getParsedBody();
             $numero_de_pedido = $body['numero_de_pedido'];
             $idProducto = $body['idProducto'];
-            $estado = $body['estado'];
 
             if($numero_de_pedido != null && $idProducto != null)
             {
-                if(Producto::ObtenerProducto($idProducto) == null && Pedido::ObtenerPedido($numero_de_pedido) == null)
+                $producto = Producto::ObtenerProducto($idProducto);
+                if($producto == null || Pedido::ObtenerPedido($numero_de_pedido) == null)
                 {
                     $response->getBody()->write("Producto o pedido no existe verificar IDs");
                     return $response->withHeader('Content-Type', 'application/json');
@@ -22,8 +22,8 @@
                 $lista = new Lista();
                 $lista->numero_de_pedido = $numero_de_pedido;
                 $lista->idProducto = $idProducto;
-                $lista->estado = $estado;
-                
+                $lista->estado = $producto->tipo;
+            
                 $lista->CrearLista();
 
                 $registro = new RegistroDeAcciones();
@@ -36,7 +36,6 @@
                 $registro->CrearRegistroDeAcciones();
 
                 $response->getBody()->write("Lista creada");
-                $response->getBody()->write(json_encode($lista));
             }
 
             return $response->withHeader('Content-Type', 'application/json');
@@ -71,15 +70,15 @@
                     break;
                 
                 case 'bartender':
-                    $lista = Lista::obtenerListaPorRol('en bartender');
+                    $lista = Lista::obtenerListaPorRol('bartender');
                     break;
                 
                 case 'cocinero':
-                    $lista = Lista::obtenerListaPorRol('en cocina');
+                    $lista = Lista::obtenerListaPorRol('cocinero');
                     break;
                 
                 case 'cervecero':
-                    $lista = Lista::obtenerListaPorRol('en cervecero');
+                    $lista = Lista::obtenerListaPorRol('cervecero');
                     break;
 
                 default:
@@ -119,6 +118,15 @@
             $lista = Lista::obtenerListaPorID($id);
             if($lista != null && $lista->estado == 'listo')
             {
+                $pedido = Pedido::ObtenerPedido($lista->numero_de_pedido);
+                $producto = Producto::ObtenerProducto($lista->idProducto);
+                $pedido->precioTotal += $producto->precio;
+                $pedido->ActualizarPrecio();
+
+                $mesa = Mesa::ObtenerMesa($pedido->mesaID);
+                $mesa->estado = "cliente comiendo";
+                $mesa->ActualizarEstado();
+
                 Lista::CambiarEstado($id, "entregado");
                 $response->getBody()->write("Entregado");
                 

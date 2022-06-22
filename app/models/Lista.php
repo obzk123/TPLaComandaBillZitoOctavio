@@ -18,6 +18,16 @@
             
         }
 
+        public static function ObtenerListaDeUnPedido($numero_de_pedido)
+        {
+            $accesoDatos = AccesoDatos::obtenerInstancia();
+            $consulta = $accesoDatos->prepararConsulta("SELECT * FROM lista WHERE numero_de_pedido = :numero_de_pedido AND estado != :estado");
+            $consulta->bindValue(':numero_de_pedido', $numero_de_pedido, PDO::PARAM_INT);
+            $consulta->bindValue(':estado', "entregado", PDO::PARAM_STR);
+            $consulta->execute();
+            return $consulta->fetchAll(PDO::FETCH_CLASS, 'Lista');
+        }
+
         public static function CambiarEstado($id, $estado)
         {
             $accesoDatos = AccesoDatos::obtenerInstancia();

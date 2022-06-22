@@ -76,7 +76,8 @@ $app->addErrorMiddleware(true, true, true);
     $group->post('[/]', \PedidoController::class. ':CargarUno');
     $group->delete('/{id}', \PedidoController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->put('[/]', \PedidoController::class . ':ModificarUno');
-  });
+    $group->post('/cerrar/{numero_de_pedido}', \PedidoController::class . ':CerrarPedidoController');
+  })->add(\AutentificadorJWT::class . ':verificarToken');
 
   //Cliente
   $app->group('/cliente', function(RouteCollectorProxy $group)
@@ -85,6 +86,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('[/]', \ClienteController::class . ':TraerTodos');
     $group->get('/{id}', \ClienteController::class . ':TraerUno');
     $group->delete('/{id}', \ClienteController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
+    $group->post('/asignar', \ClienteController::class . ':AsignarCliente');
   })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolMozo');
   
   //Encuesta
@@ -103,7 +105,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('[/]', \FacturaController::class . ':TraerTodos')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->get('/{id}', \FacturaController::class . ':TraerUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->delete('/{id}', \FacturaController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-  })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+  })->add(\AutentificadorJWT::class . ':verificarToken');
   
   //RegistroDeAcciones
   $app->group('/registrodeacciones', function(RouteCollectorProxy $group)

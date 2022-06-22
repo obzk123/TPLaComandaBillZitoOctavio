@@ -51,6 +51,15 @@
             return $consulta->rowCount();
         }
 
+        public function ActualizarEstado()
+        {
+            $accesoDatos = AccesoDatos::obtenerInstancia();
+            $consulta = $accesoDatos->prepararConsulta("UPDATE mesas SET estado = :estado WHERE id = :id");
+            $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+            $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+            $consulta->execute();
+        }
+
         public static function EliminarMesa($numero_de_mesa)
         {
             $mesa = $numero_de_mesa;

@@ -61,11 +61,12 @@
                 $pedido->clienteID = $clienteID;
                 $pedido->usuarioID = $tokenData[0];
                 $pedido->estado = "en preparacion";
+                $pedido->tiempoDeEntrega = 0;
+                $pedido->fueCancelado = 0;
 
                 $pedido->CrearPedido();
 
                 $response->getBody()->write("Pedido creado");
-                $response->getBody()->write(json_encode($pedido));
             }
 
             return $response->withHeader('Content-Type', 'application/json');
@@ -118,6 +119,38 @@
             }
 
             $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        public function CerrarPedidoController($request, $response, $args)
+        {
+            
+            $numero_de_pedido = $args['numero_de_pedido'];
+            if($numero_de_pedido != null)
+            {
+                
+                $pedido = Pedido::ObtenerPedido($numero_de_pedido);
+                if($pedido != null && $pedido->estado != 'listo' && $pedido->fueCancelado == 0)
+                {
+                    $lista = Lista::ObtenerListaDeUnPedido($numero_de_pedido);
+                    if($lista != null)
+                    {
+                        $response->getBody()->write("No se puede cerrar el pedido quedan productos pendientes");
+                        return $response->withHeader('Content-Type', 'application/json');
+                    }
+                    
+                    $pedido->CerrarPedido();
+                    $mesa = Mesa::ObtenerMesa($pedido->mesaID);
+                    $mesa->estado = 'cliente pagando';
+                    $mesa->ActualizarEstado();
+                    $response->getBody()->write("Pedido cerrado");
+                    
+                }else
+                {
+                    $response->getBody()->write("Pedido no encontrado");
+                }
+            }
+
             return $response->withHeader('Content-Type', 'application/json');
         }
     }

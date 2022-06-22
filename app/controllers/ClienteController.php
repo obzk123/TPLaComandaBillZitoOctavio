@@ -14,8 +14,7 @@
                 $cliente->nombre = $nombre;
                 $cliente->CrearCliente();
 
-                $response->getBody()->write("Cliente creada");
-                $response->getBody()->write(json_encode($cliente));
+                $response->getBody()->write("Cliente creado");
 
                 $registro = new RegistroDeAcciones();
 
@@ -105,6 +104,32 @@
             return $response->withHeader('Content-Type', 'application/json');
         }
 
+        public function AsignarCliente($request, $response, $args)
+        {
+            $body = $request->getParsedBody();
+            $clienteID = $body['clienteID'];
+            $mesaID = $body['mesaID'];
+
+            $cliente = Cliente::obtenerCliente($clienteID);
+            $mesa = Mesa::ObtenerMesa($mesaID);
+            if($cliente == null && $mesa != null)
+            {
+                $response->getBody()->write("Cliente o mesa no encontrado");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            if($mesa->estado != 'cerrada')
+            {
+                $response->getBody()->write("Mesa ocupada");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $mesa->estado = 'cliente esperando';
+            $mesa->ActualizarEstado();
+
+            $response->getBody()->write("Cliente asignado");
+            return $response->withHeader('Content-Type', 'application/json');
+        }
 
     }
 

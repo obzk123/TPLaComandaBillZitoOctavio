@@ -8,17 +8,29 @@
         {
             $body = $request->getParsedBody();
             $numero_de_pedido = $body['numero_de_pedido'];
-            $encuestaID = $body['encuestaID'];
-            $fechaSalida = $body['fechaSalida'];
 
-            if($numero_de_pedido != null && $encuestaID != null && $fechaSalida != null)
+            if($numero_de_pedido != null)
             {
+                $pedido = Pedido::ObtenerPedido($numero_de_pedido);
+                if($pedido == null || $pedido->estado != 'listo')
+                {
+                    $response->getBody()->write("No se puede realizar el cobro");
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+
+                
+                
                 $factura = new Factura();
                 $factura->numero_de_pedido = $numero_de_pedido;
-                $factura->encuestaID = $encuestaID;
-                $factura->fechaSalida = $fechaSalida;
-
+                $factura->fechaSalida = date('Y-m-d');;
                 $factura->CrearFactura();
+                
+                $pedido->estado = 'finalizado';
+                $pedido->CambiarEstado();
+               
+                $mesa = Mesa::ObtenerMesa($pedido->mesaID);
+                $mesa->estado = 'cerrada';
+                $mesa->ActualizarEstado();
 
                 $registro = new RegistroDeAcciones();
 
@@ -31,7 +43,6 @@
                 $registro->CrearRegistroDeAcciones();
 
                 $response->getBody()->write("Factura creada");
-                $response->getBody()->write(json_encode($factura));
             }
             return $response->withHeader('Content-Type', 'application/json');
         }
