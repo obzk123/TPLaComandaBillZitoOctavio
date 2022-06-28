@@ -116,8 +116,8 @@
     $group->post('/demora', \ClienteController::class . ':VerDemora');
   });
   
-  $group->get('/descargarcliente', \ClienteController::class . ':GuardarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-  
+  $app->get('/descargarcliente', \ClienteController::class . ':GuardarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
+
   //Encuesta
   $app->group('/encuesta', function(RouteCollectorProxy $group)
   {
