@@ -42,8 +42,6 @@ $app->addErrorMiddleware(true, true, true);
     return $response;
   });
 
-
-
   $app->post('/login', \LoginController::class . ':iniciarSesion');
 
   $app->group('/usuarios', function (RouteCollectorProxy $group) {
@@ -75,42 +73,39 @@ $app->addErrorMiddleware(true, true, true);
   $app->group('/informes', function(RouteCollectorProxy $group)
   {
     $group->get('/{id}', \InformesController::class . ':ObtenerInformes');
-  });
+  })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolSocio');
 
-  
   $app->group('/pedidos', function(RouteCollectorProxy $group)
   {
-    $group->get('[/]', \PedidoController::class. ':TraerTodos');
-    $group->get('/{pedido}', \PedidoController::class. ':TraerUno');
-    $group->post('[/]', \PedidoController::class. ':CargarUno');
+    $group->get('[/]', \PedidoController::class. ':TraerTodos')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->get('/{pedido}', \PedidoController::class. ':TraerUno')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->post('[/]', \PedidoController::class. ':CargarUno')->add(\AutentificadorJWT::class . ':verificarRolMozo');
     $group->delete('/{id}', \PedidoController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-    $group->put('[/]', \PedidoController::class . ':ModificarUno');
-    $group->post('/cerrar/{numero_de_pedido}', \PedidoController::class . ':CerrarPedidoController');
+    $group->put('[/]', \PedidoController::class . ':ModificarUno')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->post('/cerrar/{numero_de_pedido}', \PedidoController::class . ':CerrarPedidoController')->add(\AutentificadorJWT::class . ':verificarRolMozo');
     $group->post('/foto', \PedidoController::class . ':TomarFoto')->add(\AutentificadorJWT::class . ':verificarRolMozo');
   })->add(\AutentificadorJWT::class . ':verificarToken');
 
   //Cliente
   $app->group('/cliente', function(RouteCollectorProxy $group)
   {
-    $group->post('[/]', \ClienteController::class . ':CargarUno');
-    $group->get('[/]', \ClienteController::class . ':TraerTodos');
-    $group->get('/{id}', \ClienteController::class . ':TraerUno');
+    $group->post('[/]', \ClienteController::class . ':CargarUno')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->get('[/]', \ClienteController::class . ':TraerTodos')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->get('/{id}', \ClienteController::class . ':TraerUno')->add(\AutentificadorJWT::class . ':verificarRolMozo');
     $group->delete('/{id}', \ClienteController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-    $group->post('/asignar', \ClienteController::class . ':AsignarCliente');
-    $group->post('/cargar', \ClienteController::class . ':CargarCSV');
+    $group->post('/asignar', \ClienteController::class . ':AsignarCliente')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->post('/cargar', \ClienteController::class . ':CargarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
+    $group->get('/descargar', \ClienteController::class . ':GuardarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->post('/demora', \ClienteController::class . ':VerDemora');
-    //$group->get('/descargar', \ClienteController::class . ':GuardarCSV');
   });
   
-  
-
   //Encuesta
   $app->group('/encuesta', function(RouteCollectorProxy $group)
   {
     $group->post('[/]', \EncuestaController::class . ':CargarUno');
     $group->get('[/]', \EncuestaController::class . ':TraerTodos');
     $group->get('/{id}', \EncuestaController::class . ':TraerUno');
-    $group->delete('/{id}', \EncuestaController::class . ':BorrarUno');
+    $group->delete('/{id}', \EncuestaController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
   })->add(\AutentificadorJWT::class . ':verificarToken');
   
   //Factura
@@ -120,7 +115,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('[/]', \FacturaController::class . ':TraerTodos')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->get('/{id}', \FacturaController::class . ':TraerUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->delete('/{id}', \FacturaController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-  })->add(\AutentificadorJWT::class . ':verificarToken');
+  })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolMozo');
   
   //RegistroDeAcciones
   $app->group('/registrodeacciones', function(RouteCollectorProxy $group)
@@ -145,7 +140,7 @@ $app->addErrorMiddleware(true, true, true);
   //Lista
   $app->group('/lista', function(RouteCollectorProxy $group)
   {
-    $group->post('[/]', \ListaController::class . ':CargarUno');
+    $group->post('[/]', \ListaController::class . ':CargarUno')->add(\AutentificadorJWT::class . ':verificarRolMozo');;
     $group->get('[/]', \ListaController::class . ':TraerTodos');
     $group->get('/{numero_de_pedido}', \ListaController::class . ':TraerUno');
     $group->delete('/{numero_de_pedido}', \ListaController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
