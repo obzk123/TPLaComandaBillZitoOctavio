@@ -113,9 +113,10 @@
     $group->delete('/{id}', \ClienteController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->post('/asignar', \ClienteController::class . ':AsignarCliente')->add(\AutentificadorJWT::class . ':verificarRolMozo');
     $group->post('/cargar', \ClienteController::class . ':CargarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-    $group->get('/descargar', \ClienteController::class . ':GuardarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->post('/demora', \ClienteController::class . ':VerDemora');
   });
+  
+  $group->get('/descargarcliente', \ClienteController::class . ':GuardarCSV')->add(\AutentificadorJWT::class . ':verificarRolSocio');
   
   //Encuesta
   $app->group('/encuesta', function(RouteCollectorProxy $group)
