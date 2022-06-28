@@ -152,9 +152,10 @@
     $group->get('[/]', \RegistroIngresosController::class . ':TraerTodos');
     $group->get('/{id}', \RegistroIngresosController::class . ':TraerUno');
     $group->delete('/{id}', \RegistroIngresosController::class . ':BorrarUno');
-    $group->get('/descargar', \RegistroIngresosController::class . ':DescargarPDF');
+    
   })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolSocio');
- 
+  
+  $app->get('/descargarregistroingresos', \RegistroIngresosController::class . ':DescargarPDF');
 
   //Lista
   $app->group('/lista', function(RouteCollectorProxy $group)
