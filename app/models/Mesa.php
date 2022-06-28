@@ -1,7 +1,5 @@
 <?php
 
-    require_once("E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/db/AccesoDatos.php");
-
     class Mesa
     {
         public $id;

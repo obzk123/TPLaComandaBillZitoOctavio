@@ -1,7 +1,5 @@
 <?php
 
-    require_once("E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/Cliente.php");
-
     class ClienteController extends Cliente implements IApiUsable
     {
         public function CargarUno($request, $response, $args)

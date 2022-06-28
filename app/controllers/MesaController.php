@@ -1,7 +1,5 @@
 <?php
 
-require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/Mesa.php";
-require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/interfaces/IApiUsable.php";
 
     class MesaController extends Mesa implements IApiUsable
     {

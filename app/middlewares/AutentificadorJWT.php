@@ -1,6 +1,5 @@
 <?php
 
-    require_once("./models/JsonWebToken.php");
 
 use Psr7Middlewares\Middleware\Expires;
 use Slim\Psr7\Response;

@@ -1,40 +1,58 @@
 <?php
-error_reporting(-1);
-ini_set('display_errors', 1);
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Factory\AppFactory;
-use Slim\Routing\RouteCollectorProxy;
-use Slim\Routing\RouteContext;
+  error_reporting(-1);
+  ini_set('display_errors', 1);
 
-require __DIR__ . '/../vendor/autoload.php';
-require_once './db/AccesoDatos.php';
-require_once './controllers/UsuarioController.php';
-require_once './models/JsonWebToken.php';
-require_once './middlewares/AutentificadorJWT.php';
-require_once './controllers/MesaController.php';
-require_once './controllers/PedidoController.php';
-require_once './controllers/ProductoController.php';
-require_once './controllers/LoginController.php';
-require_once './controllers/ClienteController.php';
-require_once './controllers/EncuestaController.php';
-require_once './controllers/FacturaController.php';
-require_once './controllers/ListaController.php';
-require_once './controllers/RegistroAccionesController.php';
-require_once './controllers/RegistroIngresosController.php';
-require_once './controllers/InformesController.php';
+  use Psr\Http\Message\ResponseInterface as Response;
+  use Psr\Http\Message\ServerRequestInterface as Request;
+  use Psr\Http\Server\RequestHandlerInterface;
+  use Slim\Factory\AppFactory;
+  use Slim\Routing\RouteCollectorProxy;
+  use Slim\Routing\RouteContext;
 
-// Load ENV
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
+  require __DIR__ . '/../vendor/autoload.php';
+  require_once './interfaces/IApiUsable.php';
+  require_once './db/AccesoDatos.php';
+  require_once './models/JsonWebToken.php';
+  require_once './middlewares/AutentificadorJWT.php';
+  require_once './fpdf/fpdf.php';
 
-// Instantiate App
-$app = AppFactory::create();
+  require_once './models/Cliente.php';
+  require_once './models/Encuesta.php';
+  require_once './models/Factura.php';
+  require_once './models/Informes.php';
+  require_once './models/Lista.php';
+  require_once './models/Mesa.php';
+  require_once './models/Pedido.php';
+  require_once './models/Producto.php';
+  require_once './models/RegistroDeAcciones.php';
+  require_once './models/RegistroDeIngresos.php';
+  require_once './models/Usuario.php';
 
-// Add error middleware
-$app->addErrorMiddleware(true, true, true);
+
+  require_once './controllers/ClienteController.php';
+  require_once './controllers/EncuestaController.php';
+  require_once './controllers/FacturaController.php';
+  require_once './controllers/InformesController.php';
+  require_once './controllers/ListaController.php';
+  require_once './controllers/LoginController.php';
+  require_once './controllers/MesaController.php';
+  require_once './controllers/PedidoController.php';
+  require_once './controllers/ProductoController.php';
+  require_once './controllers/RegistroAccionesController.php';
+  require_once './controllers/RegistroIngresosController.php';
+  require_once './controllers/UsuarioController.php';
+
+
+  // Load ENV
+  $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+  $dotenv->safeLoad();
+
+  // Instantiate App
+  $app = AppFactory::create();
+
+  // Add error middleware
+  $app->addErrorMiddleware(true, true, true);
 
 
   $app->get('[/]', function (Request $request, Response $response) {
@@ -117,7 +135,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->delete('/{id}', \FacturaController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
   })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolMozo');
   
-  //RegistroDeAcciones
+  //Registro De Acciones
   $app->group('/registrodeacciones', function(RouteCollectorProxy $group)
   {
     $group->post('[/]', \RegistroAccionesControllers::class . ':CargarUno');
@@ -126,7 +144,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->delete('/{id}', \RegistroAccionesControllers::class . ':BorrarUno');
   })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolSocio');
   
-  //RegistroDeIngresos
+  //Registro De Ingresos
   $app->group('/registrodeingresos', function(RouteCollectorProxy $group)
   {
     $group->post('[/]', \RegistroIngresosController::class . ':CargarUno');
@@ -149,4 +167,5 @@ $app->addErrorMiddleware(true, true, true);
   })->add(\AutentificadorJWT::class . ':verificarToken');
 
   $app->run();
+
 ?>
