@@ -2,6 +2,7 @@
 
     require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/Pedido.php";
     require_once "E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/interfaces/IApiUsable.php";
+    use Slim\Http\UploadedFile;
 
     class PedidoController extends Pedido implements IApiUsable
     {
@@ -34,11 +35,10 @@
             $mesaID = $body['mesaID'];
             $clienteID = $body['clienteID'];
             
-
             if($mesaID != null && $clienteID != null)
             {
                 $mesa = Mesa::ObtenerMesa($mesaID);
-                if($mesa == null || $mesa->estado != 'cliente esperando')
+                if($mesa == null || $mesa->estado == 'cerrada' || $mesa->estado == 'cliente pagando' || $mesa->estado == 'cliente comiendo')
                 {
                     $response->getBody()->write("Mesa inexistente o ocupada");
                     return $response->withHeader('Content-Type', 'application/json');
@@ -56,7 +56,7 @@
                 $tokenData = JsonWebToken::ObtenerData($token);
 
                 $pedido = new Pedido();
-                $pedido->fechaEntrada = date("Y-m-d");
+                $pedido->fechaEntrada = date("Y-m-d-H:i:s");
                 $pedido->mesaID = $mesaID;
                 $pedido->clienteID = $clienteID;
                 $pedido->usuarioID = $tokenData[0];
@@ -128,7 +128,6 @@
             $numero_de_pedido = $args['numero_de_pedido'];
             if($numero_de_pedido != null)
             {
-                
                 $pedido = Pedido::ObtenerPedido($numero_de_pedido);
                 if($pedido != null && $pedido->estado != 'listo' && $pedido->fueCancelado == 0)
                 {
@@ -152,6 +151,29 @@
             }
 
             return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        public function TomarFoto($request, $response, $args)
+        {
+            $body = $request->getParsedBody();
+            $numero_de_pedido = $body['numero_de_pedido'];
+            if($numero_de_pedido != null)
+            {
+                $pedido = Pedido::ObtenerPedido($numero_de_pedido);
+                if($pedido != null && $pedido->fueCancelado == 0 && $pedido->estado != 'listo')
+                {
+                    $archivos = $request->getUploadedFiles();
+                    $foto = $archivos['foto'];
+                    $directorio = './images/';
+                    $foto->moveTo($directorio . $numero_de_pedido . '.jpg');
+                    $response->getBody()->write(json_encode('Foto cargada'));
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+            }
+            $response->getBody()->write(json_encode('No se encontro el pedido'));
+            return $response->withHeader('Content-Type', 'application/json');
+
+            
         }
     }
 

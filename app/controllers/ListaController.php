@@ -13,12 +13,20 @@
             if($numero_de_pedido != null && $idProducto != null)
             {
                 $producto = Producto::ObtenerProducto($idProducto);
-                if($producto == null || Pedido::ObtenerPedido($numero_de_pedido) == null)
+                $pedido = Pedido::ObtenerPedido($numero_de_pedido);
+                if($producto == null || $pedido == null || $pedido->estado == 'finalizado')
                 {
                     $response->getBody()->write("Producto o pedido no existe verificar IDs");
                     return $response->withHeader('Content-Type', 'application/json');
                 }
                 
+
+                if($pedido->tiempoEstimado == null || $pedido->tiempoEstimado < $producto->tiempo)
+                {
+                    $pedido->tiempoEstimado = $producto->tiempo;
+                    $pedido->ActualizarTiempo();
+                }
+
                 $lista = new Lista();
                 $lista->numero_de_pedido = $numero_de_pedido;
                 $lista->idProducto = $idProducto;

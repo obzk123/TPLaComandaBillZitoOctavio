@@ -131,6 +131,89 @@
             return $response->withHeader('Content-Type', 'application/json');
         }
 
+        public function CargarCSV($request, $response, $args)
+        {
+            $archivo = $request->getUploadedFiles()['archivoCSV'];
+            $split = explode(".", $archivo->getClientFilename());
+            $extension = end($split);
+
+            if($extension == 'csv')
+            {
+                $stream = $archivo->getStream();
+                $lineas = explode(PHP_EOL, $stream);
+                array_splice($lineas, 0, 1);
+                foreach($lineas as $linea)
+                {
+                    $explode = explode(',', $linea);
+                    $nuevoCliente = new Cliente();
+                    $nuevoCliente->id = $explode[0];
+                    $nuevoCliente->nombre = $explode[1];
+                    $nuevoCliente->CrearCliente();
+                }
+                $response->getBody()->write("Archivo correcto");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write("Archivo incorrecto");
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        public function GuardarCSV($request, $response, $args)
+        {
+            $listaClientes = Cliente::obtenerTodos();
+            if($listaClientes != null)
+            {
+                $string = 'id,nombre' . PHP_EOL;
+                foreach($listaClientes as $cliente)
+                {
+                    $string .= $cliente->GetCSV() . PHP_EOL;
+                }
+
+                $file = "clientes.csv";
+                $txt = fopen($file, "w");
+                fwrite($txt, $string);
+                fclose($txt);
+
+                header('Content-Description: File Transfer');
+                header('Content-Disposition: attachment; filename='.basename($file));
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($file));
+                header("Content-Type: text/plain");
+                readfile($file);
+            }
+            else
+            {
+                $response->getBody()->write(json_encode('Lista de clientes vacia'));
+            }
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+
+        public function VerDemora($request, $response, $args)
+        {
+            $body = $request->getParsedBody();
+            $mesaID = $body['mesaID'];
+            $numero_de_pedido = $body['numero_de_pedido'];
+
+            if($mesaID == null || $numero_de_pedido == null)
+            {
+                $response->getBody()->write("Datos incorrectos");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $mesa = Mesa::ObtenerMesa($mesaID);
+            $pedido = Pedido::ObtenerPedido($numero_de_pedido);
+            if($mesa == null || $pedido == null)
+            {
+                $response->getBody()->write("Numero de mesa o pedido incorrecto");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode('Tiempo estimado: ' . $pedido->tiempoEstimado));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
     }
 
 ?>

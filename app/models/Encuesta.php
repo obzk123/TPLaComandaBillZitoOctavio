@@ -20,8 +20,13 @@
             $consulta->bindValue(':puntajeRestorant', $this->puntajeRestorant, PDO::PARAM_INT);
             $consulta->bindValue(':puntajeCocinero', $this->puntajeCocinero, PDO::PARAM_INT);
             $consulta->bindValue(':puntajeMozo', $this->puntajeMozo, PDO::PARAM_INT);
-            $consulta->execute(); 
+            $consulta->execute();
             return $accesoDatos->obtenerUltimoId();
+        }
+
+        public function ObtenerPromedio()
+        {
+            return ($this->puntajeMesa + $this->puntajeMozo + $this->puntajeCocinero + $this->puntajeRestorant) / 4;
         }
 
         public static function obtenerTodas()

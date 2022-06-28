@@ -43,6 +43,15 @@
             return $consulta->fetchAll(PDO::FETCH_CLASS, "Pedido");
         }
 
+        public function ActualizarTiempo()
+        {
+            $accesoDatos = AccesoDatos::obtenerInstancia();
+            $consulta = $accesoDatos->prepararConsulta("UPDATE pedidos SET tiempoEstimado = :tiempoEstimado WHERE numero_de_pedido = :numero_de_pedido");
+            $consulta->bindValue(':tiempoEstimado', $this->tiempoEstimado);
+            $consulta->bindValue(':numero_de_pedido', $this->numero_de_pedido);
+            $consulta->execute();
+        }
+
         public function ActualizarPrecio()
         {
             $accesoDatos = AccesoDatos::obtenerInstancia();
@@ -91,6 +100,7 @@
             $consulta->bindValue(':tiempoDeEntrega', date('H:i:s'));
             $consulta->execute();
         }
+
     }
 
 

@@ -24,6 +24,7 @@ require_once './controllers/FacturaController.php';
 require_once './controllers/ListaController.php';
 require_once './controllers/RegistroAccionesController.php';
 require_once './controllers/RegistroIngresosController.php';
+require_once './controllers/InformesController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -41,6 +42,8 @@ $app->addErrorMiddleware(true, true, true);
     return $response;
   });
 
+
+
   $app->post('/login', \LoginController::class . ':iniciarSesion');
 
   $app->group('/usuarios', function (RouteCollectorProxy $group) {
@@ -57,7 +60,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('/{id}', \MesaController::class. ':TraerUno');
     $group->post('[/]', \MesaController::class. ':CargarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->delete('/{numero_de_mesa}', \MesaController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-    $group->put('[/]', MesaController::class . ':ModificarUno');
+    $group->put('[/]', MesaController::class . ':ModificarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
   })->add(\AutentificadorJWT::class . ':verificarToken');
 
   $app->group('/productos', function(RouteCollectorProxy $group)
@@ -66,9 +69,15 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('/{id}', \ProductoController::class. ':TraerUno');
     $group->post('[/]', \ProductoController::class. ':CargarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->delete('/{id}', \Producto::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-    $group->put('[/]', \Producto::class . ':ModificarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');;
+    $group->put('[/]', \Producto::class . ':ModificarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
   })->add(\AutentificadorJWT::class . ':verificarToken');
 
+  $app->group('/informes', function(RouteCollectorProxy $group)
+  {
+    $group->get('/{id}', \InformesController::class . ':ObtenerInformes');
+  });
+
+  
   $app->group('/pedidos', function(RouteCollectorProxy $group)
   {
     $group->get('[/]', \PedidoController::class. ':TraerTodos');
@@ -77,6 +86,7 @@ $app->addErrorMiddleware(true, true, true);
     $group->delete('/{id}', \PedidoController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->put('[/]', \PedidoController::class . ':ModificarUno');
     $group->post('/cerrar/{numero_de_pedido}', \PedidoController::class . ':CerrarPedidoController');
+    $group->post('/foto', \PedidoController::class . ':TomarFoto')->add(\AutentificadorJWT::class . ':verificarRolMozo');
   })->add(\AutentificadorJWT::class . ':verificarToken');
 
   //Cliente
@@ -87,8 +97,13 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('/{id}', \ClienteController::class . ':TraerUno');
     $group->delete('/{id}', \ClienteController::class . ':BorrarUno')->add(\AutentificadorJWT::class . ':verificarRolSocio');
     $group->post('/asignar', \ClienteController::class . ':AsignarCliente');
-  })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolMozo');
+    $group->post('/cargar', \ClienteController::class . ':CargarCSV');
+    $group->post('/demora', \ClienteController::class . ':VerDemora');
+    //$group->get('/descargar', \ClienteController::class . ':GuardarCSV');
+  });
   
+  
+
   //Encuesta
   $app->group('/encuesta', function(RouteCollectorProxy $group)
   {
@@ -123,8 +138,10 @@ $app->addErrorMiddleware(true, true, true);
     $group->get('[/]', \RegistroIngresosController::class . ':TraerTodos');
     $group->get('/{id}', \RegistroIngresosController::class . ':TraerUno');
     $group->delete('/{id}', \RegistroIngresosController::class . ':BorrarUno');
+    $group->get('/descargar', \RegistroIngresosController::class . ':DescargarPDF');
   })->add(\AutentificadorJWT::class . ':verificarToken')->add(\AutentificadorJWT::class . ':verificarRolSocio');
-  
+ 
+
   //Lista
   $app->group('/lista', function(RouteCollectorProxy $group)
   {

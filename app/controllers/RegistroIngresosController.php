@@ -1,6 +1,7 @@
 <?php
 
     require_once("E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/models/RegistroDeIngresos.php");
+    require_once("E:/xampp/htdocs/programacion_3/Trabajo-practico-LaComanda/app/fpdf/fpdf.php");
 
     class RegistroIngresosController extends RegistroDeIngresos implements IApiUsable
     {
@@ -68,6 +69,33 @@
             }   
 
             $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        public function DescargarPDF($request, $response, $args)
+        {
+            $listaRegistros = RegistroDeIngresos::obtenerTodos();
+            if($listaRegistros == null)
+            {
+                $response->getBody()->write("No se puede descargar");
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $string = 'id Usuario, Dia Ingreso, Hora Ingreso' . PHP_EOL;
+            foreach($listaRegistros as $registro)
+            {
+                $string .= $registro->toString() . PHP_EOL;
+            }
+
+            $pdf = new FPDF();
+            $pdf->AddPage();
+            $pdf->SetFont('Arial','B',16);
+            $pdf->MultiCell(150,8,utf8_decode($string),'1','L',0);
+            $pdf->Output('D', 'registroingresos.pdf');
+
+            $response->getBody()->write($string);
+            $response->getBody()->write("Descarga con exito");
+            
             return $response->withHeader('Content-Type', 'application/json');
         }
     }

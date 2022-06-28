@@ -40,6 +40,12 @@
             return $consulta->rowCount();
         }
 
+        public function GetCSV()
+        {
+            return $this->id . ',' . $this->nombre;
+        }
+
+
         public static function borrarCliente($id)
         {
             $accesoDatos = AccesoDatos::obtenerInstancia();
